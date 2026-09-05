@@ -1,0 +1,14 @@
+- generic [ref=e50]:
+  - generic [ref=e53]:
+    - generic [ref=e54]: Escolha um horário
+    - generic [ref=e55] [cursor=pointer]: 09:00
+    - generic [ref=e57] [cursor=pointer]: 10:00
+    - generic [ref=e59] [cursor=pointer]: 11:00
+    - generic [ref=e61] [cursor=pointer]: 14:00
+    - generic [ref=e63] [cursor=pointer]: 15:00
+    - generic [ref=e65] [cursor=pointer]: 16:00
+  - generic [ref=e67]:
+    - generic:
+      - generic:
+        - button "Go back" [ref=e69] [cursor=pointer]
+        - heading "schedule" [level=1] [ref=e72]

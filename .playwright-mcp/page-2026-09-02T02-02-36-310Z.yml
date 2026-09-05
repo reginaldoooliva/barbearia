@@ -1,0 +1,10 @@
+- generic [ref=e2]:
+  - generic [ref=e9]:
+    - generic [ref=e10]: Barbershop
+    - generic [ref=e11] [cursor=pointer]: Entrar como cliente
+    - generic [ref=e13] [cursor=pointer]: Entrar como proprietário
+  - generic:
+    - generic:
+      - generic:
+        - generic: Refreshing...
+        - generic: Don't see your changes? Reload the app

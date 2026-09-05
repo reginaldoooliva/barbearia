@@ -1,0 +1,15 @@
+- generic [ref=f1e32]:
+  - generic [ref=f1e35]:
+    - generic [ref=f1e36]: Escolha um horário
+    - generic [ref=f1e55]: Não foi possível reservar. Tente novamente.
+    - generic [active] [ref=f1e37] [cursor=pointer]: 09:00
+    - generic [ref=f1e39] [cursor=pointer]: 10:00
+    - generic [ref=f1e41] [cursor=pointer]: 11:00
+    - generic [ref=f1e43] [cursor=pointer]: 14:00
+    - generic [ref=f1e45] [cursor=pointer]: 15:00
+    - generic [ref=f1e47] [cursor=pointer]: 16:00
+  - generic [ref=f1e49]:
+    - generic:
+      - generic:
+        - button "Go back" [ref=f1e51] [cursor=pointer]
+        - heading "schedule" [level=1] [ref=f1e54]

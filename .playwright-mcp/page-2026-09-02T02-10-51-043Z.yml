@@ -1,0 +1,11 @@
+- generic [ref=f5e2]:
+  - generic [ref=f5e9]:
+    - generic [ref=f5e10]: Login do proprietário
+    - textbox "E-mail" [ref=f5e11]
+    - textbox "Senha" [ref=f5e12]
+    - generic [ref=f5e13] [cursor=pointer]: Entrar
+  - generic:
+    - generic:
+      - generic:
+        - generic: Refreshing...
+        - generic: Don't see your changes? Reload the app

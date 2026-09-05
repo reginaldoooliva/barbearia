@@ -1,0 +1,8 @@
+[     137ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:8081/node_modules%5Cexpo-router%5Centry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app:38530
+[     151ms] [LOG] Running application "main" with appParams:
+ {rootTag: #root, hydrate: false} 
+Development-level warnings: ON.
+Performance optimizations: OFF. @ http://localhost:8081/node_modules%5Cexpo-router%5Centry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app:53209
+[     277ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://www.chromium.org/developers/design-documents/create-amazing-password-forms) %o @ http://localhost:8081/login-owner:0
+[    9651ms] [WARNING] props.pointerEvents is deprecated. Use style.pointerEvents @ http://localhost:8081/node_modules%5Cexpo-router%5Centry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app:9530
+[    9652ms] [WARNING] "shadow*" style props are deprecated. Use "boxShadow". @ http://localhost:8081/node_modules%5Cexpo-router%5Centry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app:9530

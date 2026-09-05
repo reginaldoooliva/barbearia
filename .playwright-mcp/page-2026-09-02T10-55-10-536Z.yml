@@ -1,0 +1,10 @@
+- generic [ref=e73]:
+  - generic [ref=e76]:
+    - generic [ref=e77]: Pagamento via Pix
+    - generic [ref=e78]: Não foi possível gerar o pagamento. A reserva pode ter expirado.
+    - generic [ref=e79]: Você tem alguns minutos para pagar antes que o horário seja liberado novamente.
+  - generic [ref=e80]:
+    - generic:
+      - generic:
+        - button "Go back" [ref=e82] [cursor=pointer]
+        - heading "payment" [level=1] [ref=e85]

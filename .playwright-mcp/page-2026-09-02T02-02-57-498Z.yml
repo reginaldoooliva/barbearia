@@ -1,0 +1,6 @@
+- generic [ref=e18]:
+  - generic [ref=e19]: Login do cliente
+  - textbox "E-mail" [ref=e20]: teste.cliente@example.com
+  - textbox "Senha" [ref=e21]: "123456"
+  - generic [ref=e24]: E-mail ou senha inválidos
+  - generic [active] [ref=e22] [cursor=pointer]: Entrar

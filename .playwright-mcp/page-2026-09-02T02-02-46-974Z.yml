@@ -1,0 +1,5 @@
+- generic [ref=e18]:
+  - generic [ref=e19]: Login do cliente
+  - textbox "E-mail" [ref=e20]
+  - textbox "Senha" [ref=e21]
+  - generic [ref=e22] [cursor=pointer]: Entrar

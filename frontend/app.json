@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "Barbershop",
+    "slug": "barbershop-app",
+    "scheme": "barbershop",
+    "platforms": ["ios", "android", "web"],
+    "web": { "bundler": "metro" },
+    "plugins": ["expo-router"]
+  }
+}

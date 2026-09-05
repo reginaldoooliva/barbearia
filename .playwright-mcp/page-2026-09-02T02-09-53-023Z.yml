@@ -1,0 +1,6 @@
+- generic [ref=f4e20]:
+  - generic [ref=f4e23]:
+    - generic [ref=f4e24]: O que você quer fazer?
+    - generic [ref=f4e25] [cursor=pointer]: Agendar horário
+    - generic [ref=f4e27] [cursor=pointer]: Meus agendamentos
+  - heading "home" [level=1] [ref=f4e31]

@@ -1,0 +1,7 @@
+[     147ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:8081/node_modules%5Cexpo-router%5Centry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app:38530
+[     161ms] [LOG] Running application "main" with appParams:
+ {rootTag: #root, hydrate: false} 
+Development-level warnings: ON.
+Performance optimizations: OFF. @ http://localhost:8081/node_modules%5Cexpo-router%5Centry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app:53209
+[     174ms] [WARNING] props.pointerEvents is deprecated. Use style.pointerEvents @ http://localhost:8081/node_modules%5Cexpo-router%5Centry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app:9530
+[     175ms] [WARNING] "shadow*" style props are deprecated. Use "boxShadow". @ http://localhost:8081/node_modules%5Cexpo-router%5Centry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app:9530

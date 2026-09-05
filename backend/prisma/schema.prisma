@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENTE
+  PROPRIETARIO
+}
+
+enum StatusAgendamento {
+  RESERVADO   // travado temporariamente aguardando pagamento
+  CONFIRMADO  // pago
+  CANCELADO   // expirou ou foi cancelado
+}
+
+enum StatusPagamento {
+  PENDENTE
+  APROVADO
+  RECUSADO
+  EXPIRADO
+}
+
+model Usuario {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  telefone  String?
+  senhaHash String
+  papel     Role
+  criadoEm  DateTime @default(now())
+
+  agendamentosCliente Agendamento[] @relation("ClienteAgendamentos")
+}
+
+model Barbeiro {
+  id    String  @id @default(uuid())
+  nome  String
+  ativo Boolean @default(true)
+
+  agendamentos Agendamento[]
+}
+
+model Servico {
+  id            String @id @default(uuid())
+  nome          String
+  duracaoMin    Int
+  precoCentavos Int
+
+  agendamentos Agendamento[]
+}
+
+// O índice único (barbeiroId, dataHoraInicio) é a trava real contra corrida:
+// duas reservas para o mesmo barbeiro no mesmo horário nunca coexistem no banco.
+model Agendamento {
+  id             String            @id @default(uuid())
+  cliente        Usuario           @relation("ClienteAgendamentos", fields: [clienteId], references: [id])
+  clienteId      String
+  barbeiro       Barbeiro          @relation(fields: [barbeiroId], references: [id])
+  barbeiroId     String
+  servico        Servico           @relation(fields: [servicoId], references: [id])
+  servicoId      String
+  dataHoraInicio DateTime
+  dataHoraFim    DateTime
+  status         StatusAgendamento @default(RESERVADO)
+  expiraEm       DateTime          // até quando a reserva vale sem pagamento
+  criadoEm       DateTime          @default(now())
+
+  pagamento Pagamento?
+
+  @@unique([barbeiroId, dataHoraInicio], name: "slot_unico")
+}
+
+model Pagamento {
+  id                   String          @id @default(uuid())
+  agendamento          Agendamento     @relation(fields: [agendamentoId], references: [id])
+  agendamentoId        String          @unique
+  valorCentavos        Int
+  status               StatusPagamento @default(PENDENTE)
+  metodo               String?
+  mercadoPagoPaymentId String?
+  criadoEm             DateTime        @default(now())
+  atualizadoEm         DateTime        @updatedAt
+}

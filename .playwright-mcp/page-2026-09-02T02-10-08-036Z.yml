@@ -1,0 +1,12 @@
+- generic [ref=f4e32]:
+  - generic [ref=f4e35]:
+    - generic [ref=f4e36]: Escolha o barbeiro
+    - generic [active] [ref=f4e37] [cursor=pointer]: Joao Barbeiro
+    - generic [ref=f4e39]: Escolha o serviço
+    - generic [ref=f4e40] [cursor=pointer]: Corte Masculino — 30min — R$ 40.00
+    - generic: Continuar
+  - generic [ref=f4e43]:
+    - generic:
+      - generic:
+        - button "Go back" [ref=f4e45] [cursor=pointer]
+        - heading "choose-barber-service" [level=1] [ref=f4e48]
