@@ -5,6 +5,7 @@ import { Roles } from '../auth/roles.decorator';
 import { Role } from '@prisma/client';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { DashboardStatsQueryDto } from './dto/dashboard-stats-query.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('appointments')
@@ -22,10 +23,16 @@ export class AppointmentsController {
     return this.appointmentsService.agendaDoDia(data);
   }
 
+  @Roles(Role.PROPRIETARIO)
+  @Get('stats')
+  stats(@Query() query: DashboardStatsQueryDto) {
+    return this.appointmentsService.estatisticasDashboard(query.dataInicio, query.dataFim);
+  }
+
   @Roles(Role.CLIENTE)
   @Post()
   criar(@Req() req: any, @Body() dto: CreateAppointmentDto) {
-    return this.appointmentsService.criarReserva(req.user.id, dto);
+    return this.appointmentsService.criarAgendamento(req.user.id, dto);
   }
 
   @Roles(Role.CLIENTE)

@@ -1,0 +1,12 @@
+- generic [ref=f1e155]:
+  - generic [ref=f1e158]:
+    - generic [ref=f1e159]: Meus agendamentos
+    - generic [ref=f1e162]:
+      - generic [ref=f1e163]: 
+      - generic [ref=f1e164]: Você ainda não tem agendamentos
+  - generic [ref=f1e165]:
+    - generic:
+      - generic:
+        - button "Go back" [ref=f1e167] [cursor=pointer]
+        - generic:
+          - heading [level=1]

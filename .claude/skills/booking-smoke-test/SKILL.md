@@ -2,9 +2,10 @@
 name: booking-smoke-test
 description: |
   End-to-end smoke test of the barbershop app's two main flows — client
-  booking (login → choose barber/service → schedule → payment) and owner
-  agenda (login → dashboard) — driven through a real browser against the
-  locally running backend and frontend.
+  booking (login → choose barber/service → schedule, confirmed immediately
+  since payment happens in person at the shop) and owner agenda (login →
+  dashboard) — driven through a real browser against the locally running
+  backend and frontend.
   Trigger: "/booking-smoke-test", "testa o fluxo de agendamento", "roda o smoke test".
 user-invocable: true
 ---
@@ -49,24 +50,20 @@ check for the booking flow — run it after touching anything under
    both query params populated (not empty/undefined).
 
 4. Click any time slot. **Expect**: either
-   - navigation to `/payment?agendamentoId=...` (booking succeeded), or
+   - navigation to `/my-appointments` showing the new appointment with
+     status "Confirmado" (booking succeeded — it confirms immediately,
+     there is no payment step in the app), or
    - an inline error "Esse horário acabou de ser reservado por outro
      cliente" if that exact slot+date was already booked by a prior run —
      retry with a different slot in that case.
 
-5. On the payment screen: if `backend/.env`'s `MERCADOPAGO_ACCESS_TOKEN` is
-   still the placeholder value, **expect** the known, acceptable failure
-   "Não foi possível gerar o pagamento" — do not report this as a bug. If a
-   real Mercado Pago token is configured, **expect** a Pix QR code to render
-   instead, and report a failure if it doesn't.
-
-6. Navigate to `http://localhost:8081/login-owner`, log in with the owner
+5. Navigate to `http://localhost:8081/login-owner`, log in with the owner
    test account. **Expect**: redirect to `/dashboard` with 0 console errors
    (the list can legitimately be empty if no appointment was booked for
    *today* — the booking flow above uses whatever fixed date is hardcoded in
    `schedule.tsx`, which usually is not today).
 
-7. To actually verify the booked appointment landed correctly, call
+6. To actually verify the booked appointment landed correctly, call
    `GET /appointments/agenda?data=<the date used in schedule.tsx>` with the
    owner's JWT directly (curl) and confirm the created appointment appears
    with the right cliente/barbeiro/servico — the dashboard screen won't show
@@ -76,5 +73,5 @@ check for the booking flow — run it after touching anything under
 
 End with a short pass/fail list, one line per step above — not a full
 transcript. Call out anything that failed for a reason **not** already
-documented as a known gap in `CLAUDE.md` (those are: no date/business-hours
-picker in `schedule.tsx`, no payment polling, no webhook signature check).
+documented as a known gap in `CLAUDE.md` (there is no date/business-hours
+picker in `schedule.tsx` — it uses a fixed hardcoded date/slot list).

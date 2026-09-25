@@ -11,13 +11,12 @@ barbershop-app/
 │   └── src/
 │       ├── auth/              # login/cadastro, JWT, guarda de papéis (cliente/proprietário)
 │       ├── users/
-│       ├── appointments/      # reserva, trava de horário, expiração
-│       ├── payments/          # integração Mercado Pago + webhook
+│       ├── appointments/      # agendamento e trava de horário
 │       └── services-catalog/  # serviços oferecidos (corte, barba, etc)
 └── frontend/          # App Expo (mobile + web)
     ├── app/
-    │   ├── (auth)/         # login-client.tsx, login-owner.tsx
-    │   ├── (client)/       # home, schedule, payment, my-appointments
+    │   ├── (auth)/         # login-client.tsx, login-owner.tsx, register.tsx
+    │   ├── (client)/       # home, schedule, my-appointments
     │   └── (owner)/        # dashboard
     └── src/
         ├── services/api.ts
@@ -29,7 +28,7 @@ barbershop-app/
 ```bash
 cd backend
 npm install
-cp .env.example .env   # preencha DATABASE_URL, JWT_SECRET e MERCADOPAGO_ACCESS_TOKEN
+cp .env.example .env   # preencha DATABASE_URL e JWT_SECRET
 npx prisma migrate dev --name init
 npm run start:dev
 ```
@@ -53,15 +52,12 @@ Ajuste `baseURL` em `src/services/api.ts` para o endereço real do backend quand
 
 - Cadastro/login únicos (`/auth/register`, `/auth/login`), diferenciando cliente e proprietário pelo campo `papel`.
 - Trava de horário via índice único `(barbeiroId, dataHoraInicio)` no banco — a defesa real contra dois clientes pegando o mesmo horário, não apenas uma verificação no código.
-- Reserva temporária (`RESERVADO`) com expiração automática se o pagamento não é concluído a tempo.
-- Criação de cobrança Pix via Mercado Pago e webhook que confirma o agendamento quando o pagamento é aprovado.
+- Agendamento é confirmado (`CONFIRMADO`) imediatamente ao ser criado — o pagamento é feito presencialmente na barbearia, não pelo app.
 - Guarda de rotas por papel (`@Roles(Role.PROPRIETARIO)`) para endpoints que só o dono pode usar, como cadastrar serviços.
-- Telas de login separadas para cliente e proprietário, agendamento com tratamento de conflito de horário (HTTP 409), tela de pagamento com QR code Pix, e listagem de agendamentos.
+- Telas de login separadas para cliente e proprietário, cadastro, agendamento com tratamento de conflito de horário (HTTP 409), e listagem de agendamentos.
 
 ## Próximos passos sugeridos
 
-1. Endpoint `/appointments/agenda` para o dashboard do proprietário ver todos os agendamentos do dia (não só os de um cliente).
-2. Cadastro de horário de funcionamento por barbeiro, usado para gerar os slots disponíveis dinamicamente (hoje `schedule.tsx` usa horários fixos de exemplo).
-3. Notificações push (lembrete de horário, confirmação de pagamento).
-4. Tela de cadastro (`/auth/register`) no frontend — hoje só o backend já suporta.
-5. Job periódico (ou lógica no próprio Postgres) para marcar como `CANCELADO` reservas expiradas que nunca chegaram a ter um pagamento tentado.
+1. Cadastro de horário de funcionamento por barbeiro, usado para gerar os slots disponíveis dinamicamente (hoje `schedule.tsx` usa horários fixos de exemplo).
+2. Notificações push (lembrete de horário).
+3. Tela para o proprietário cancelar/reagendar um horário direto pelo painel.

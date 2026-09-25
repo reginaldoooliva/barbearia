@@ -15,7 +15,7 @@ user-invocable: true
 
 This tests the single most important architectural guarantee in the
 codebase (see `CLAUDE.md` → "Booking concurrency is a DB constraint, not app
-logic"): `AppointmentsService.criarReserva` relies on the Postgres unique
+logic"): `AppointmentsService.criarAgendamento` relies on the Postgres unique
 index `@@unique([barbeiroId, dataHoraInicio])` and a caught `P2002` error to
 turn a race into a clean `201` + `409` pair instead of a double-booking. Unit
 tests against a mocked Prisma client cannot catch a regression here — only a
@@ -84,23 +84,23 @@ removed. The requests must be issued from the same process via
 
 5. **Assert the outcome**:
    - **Pass**: one response is `201` (the created `Agendamento`, status
-     `RESERVADO`), the other is `409` with the message "Esse horário acabou
+     `CONFIRMADO`), the other is `409` with the message "Esse horário acabou
      de ser reservado por outro cliente".
    - **Fail / regression**: both `201` (double-booking — the protection is
      broken, likely because the unique index was dropped from the schema/a
-     migration, or the `P2002` catch in `criarReserva` was changed/removed),
+     migration, or the `P2002` catch in `criarAgendamento` was changed/removed),
      both `409` (something else broke request handling), or any other
      combination.
 
 6. **Report** pass/fail plainly, and if it fails, point directly at
-   `backend/src/appointments/appointments.service.ts` (`criarReserva`) and
+   `backend/src/appointments/appointments.service.ts` (`criarAgendamento`) and
    `backend/prisma/schema.prisma` (the `slot_unico` index on `Agendamento`)
    as the first two places to check — do not start debugging elsewhere.
 
 ## Notes
 
-- This leaves one real `RESERVADO` row in the database (the winning
-  request). No cleanup needed — it will lazy-expire like any other
-  unpaid reservation once `RESERVATION_HOLD_MINUTES` passes, per the
-  reservation lifecycle described in `CLAUDE.md`.
+- This leaves one real `CONFIRMADO` appointment row in the database (the
+  winning request) — bookings confirm immediately since payment is handled
+  in person at the shop, not through the app. No cleanup needed for a local
+  test run, but be aware it will show up in the owner's agenda for that date.
 - Only run this against a local/dev database.

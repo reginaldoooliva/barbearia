@@ -11,7 +11,7 @@ Barbershop scheduling app: NestJS + Prisma/PostgreSQL backend, Expo (React Nativ
 ### Backend (`backend/`)
 ```
 npm install
-cp .env.example .env        # fill DATABASE_URL, JWT_SECRET, MERCADOPAGO_ACCESS_TOKEN, BACKEND_URL
+cp .env.example .env        # fill DATABASE_URL, JWT_SECRET
 npx prisma migrate dev --name <name>   # or: npm run prisma:migrate
 npm run prisma:generate
 npm run start:dev           # nest start --watch, serves on $PORT (default 3000)
@@ -39,22 +39,19 @@ Also has no lint/test scripts configured. `react` and `react-dom` must stay pinn
 ## Architecture
 
 ### Booking concurrency is a DB constraint, not app logic
-The core invariant of this app — two clients can never book the same barber at the same time — is enforced by the unique index `@@unique([barbeiroId, dataHoraInicio])` on `Agendamento` (`backend/prisma/schema.prisma`), not by a check-then-insert in code. `AppointmentsService.criarReserva` inserts optimistically and catches Prisma's `P2002` unique-violation error, converting it into a `409 ConflictException`. Any change to the booking flow must preserve this pattern — don't replace it with a pre-check, which would reintroduce the race condition.
+The core invariant of this app — two clients can never book the same barber at the same time — is enforced by the unique index `@@unique([barbeiroId, dataHoraInicio])` on `Agendamento` (`backend/prisma/schema.prisma`), not by a check-then-insert in code. `AppointmentsService.criarAgendamento` inserts optimistically and catches Prisma's `P2002` unique-violation error, converting it into a `409 ConflictException`. Any change to the booking flow must preserve this pattern — don't replace it with a pre-check, which would reintroduce the race condition.
 
-### Reservation lifecycle
-`Agendamento.status` moves `RESERVADO` → `CONFIRMADO` (on payment) or `CANCELADO` (expired/cancelled). A reservation holds the slot until `expiraEm` (`RESERVATION_HOLD_MINUTES` env var, default 10 min). Expiry is **lazy and narrow**: `criarReserva` calls `expirarReservasVencidas` which only flips stale `RESERVADO` rows for the *same barbeiro+timeslot* being requested, right before inserting. There is no cron/background job that sweeps orphaned expired reservations elsewhere in the table — this is a known gap.
-
-### Payments (Mercado Pago Pix)
-`PaymentsService` creates a Pix charge tied to one `Agendamento` (`Pagamento` is 1:1). The webhook (`POST /payments/webhook`, intentionally public/unauthenticated) confirms payment inside a `$transaction` that updates both `Pagamento` and `Agendamento` to `CONFIRMADO` atomically. Known gaps: no webhook signature verification, and the Pix charge's payer email is hardcoded rather than using the logged-in user's real email.
+### Reservation lifecycle and payments
+Payment is handled entirely in person at the barbershop — there is no in-app payment flow (no Pix/Mercado Pago, no card processing). `Agendamento.status` is set to `CONFIRMADO` at creation time and only moves to `CANCELADO` if the client cancels (`DELETE /appointments/:id`). There is no `RESERVADO`/hold state and no expiry logic.
 
 ### Auth and role guards
 JWT-based (`passport-jwt`). Role checks use `@Roles(Role.CLIENTE | Role.PROPRIETARIO)` + `RolesGuard`, which reads metadata via `Reflector` and allows the request through if no `@Roles()` is set on the handler (i.e. guards must be explicitly opted into role-restriction, not opted out).
 
 ### Backend module map
-`PrismaModule` is `@Global()` — any module can inject `PrismaService` without importing it explicitly. Feature modules: `AuthModule`, `UsersModule`, `AppointmentsModule` (booking + availability + owner agenda), `PaymentsModule`, `ServicesCatalogModule`, `BarbeirosModule` — the latter two are simple public-read/owner-write catalogs (list is public, create requires `@Roles(Role.PROPRIETARIO)`), and are the data source the frontend's barber/service picker depends on.
+`PrismaModule` is `@Global()` — any module can inject `PrismaService` without importing it explicitly. Feature modules: `AuthModule`, `UsersModule`, `AppointmentsModule` (booking + availability + owner agenda), `ServicesCatalogModule`, `BarbeirosModule` — the latter two are simple public-read/owner-write catalogs (list is public, create requires `@Roles(Role.PROPRIETARIO)`), and are the data source the frontend's barber/service picker depends on.
 
 ### Frontend routing and structure
-File-based routing via `expo-router`; route groups map to user flows: `(auth)` (login-client, login-owner — there is no register screen yet), `(client)` (home → choose-barber-service → schedule → payment, plus my-appointments), `(owner)` (dashboard, reads `GET /appointments/agenda`). `AuthContext` holds `papel` (role) in memory only — it does not restore the session on app relaunch.
+File-based routing via `expo-router`; route groups map to user flows: `(auth)` (login-client, login-owner, register), `(client)` (home → choose-barber-service → schedule → my-appointments, booking confirms immediately since payment happens at the shop), `(owner)` (dashboard, reads `GET /appointments/agenda`). `AuthContext` holds `papel` (role) in memory only — it does not restore the session on app relaunch.
 
 **Web storage pitfall**: `expo-secure-store` has no real web implementation (its web module resolves to an empty object), so calling it directly on web throws before any network request fires. `src/services/storage.ts` wraps it — `localStorage` on `Platform.OS === 'web'`, `SecureStore` elsewhere — and both `api.ts` (token-injection interceptor) and `AuthContext.tsx` go through this wrapper, never through `expo-secure-store` directly. Keep any new persisted-token code going through `storage.ts`.
 

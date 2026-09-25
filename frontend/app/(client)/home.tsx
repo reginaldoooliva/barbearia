@@ -47,7 +47,7 @@ export default function ClientHome() {
           </View>
           <View style={styles.cardTexto}>
             <Text style={styles.cardTitulo}>Meus agendamentos</Text>
-            <Text style={styles.cardDescricao}>Veja reservas e pagamentos</Text>
+            <Text style={styles.cardDescricao}>Veja seus horários agendados</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
         </Pressable>

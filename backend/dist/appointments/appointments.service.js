@@ -8,18 +8,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var AppointmentsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppointmentsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
-const MINUTOS_DE_RESERVA = Number(process.env.RESERVATION_HOLD_MINUTES ?? 10);
-let AppointmentsService = class AppointmentsService {
+let AppointmentsService = AppointmentsService_1 = class AppointmentsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
     /**
-     * Cria a reserva temporária do horário.
+     * Cria o agendamento já confirmado — o pagamento é feito na barbearia,
+     * então não há etapa intermediária de reserva/expiração aqui.
      *
      * A trava contra dois clientes pegando o mesmo horário não depende de
      * "verificar antes de criar" (isso tem condição de corrida). Ela depende
@@ -27,16 +28,12 @@ let AppointmentsService = class AppointmentsService {
      * chegarem ao mesmo tempo, o banco garante que só um INSERT terá sucesso.
      * O segundo cai no catch abaixo com erro de violação de unicidade (P2002).
      */
-    async criarReserva(clienteId, dto) {
+    async criarAgendamento(clienteId, dto) {
         const servico = await this.prisma.servico.findUnique({ where: { id: dto.servicoId } });
         if (!servico)
             throw new common_1.NotFoundException('Serviço não encontrado');
         const inicio = new Date(dto.dataHoraInicio);
         const fim = new Date(inicio.getTime() + servico.duracaoMin * 60_000);
-        const expiraEm = new Date(Date.now() + MINUTOS_DE_RESERVA * 60_000);
-        // Antes de tentar reservar, libera qualquer reserva antiga já expirada
-        // para esse mesmo horário (senão o índice único bloquearia à toa).
-        await this.expirarReservasVencidas(dto.barbeiroId, inicio);
         try {
             const agendamento = await this.prisma.agendamento.create({
                 data: {
@@ -45,8 +42,7 @@ let AppointmentsService = class AppointmentsService {
                     servicoId: dto.servicoId,
                     dataHoraInicio: inicio,
                     dataHoraFim: fim,
-                    expiraEm,
-                    status: client_1.StatusAgendamento.RESERVADO,
+                    status: client_1.StatusAgendamento.CONFIRMADO,
                 },
             });
             return agendamento;
@@ -58,30 +54,16 @@ let AppointmentsService = class AppointmentsService {
             throw err;
         }
     }
-    async expirarReservasVencidas(barbeiroId, dataHoraInicio) {
-        await this.prisma.agendamento.updateMany({
-            where: {
-                barbeiroId,
-                dataHoraInicio,
-                status: client_1.StatusAgendamento.RESERVADO,
-                expiraEm: { lt: new Date() },
-            },
-            data: { status: client_1.StatusAgendamento.CANCELADO },
-        });
-    }
     async listarHorariosDisponiveis(barbeiroId, data) {
         // TODO: cruzar com horário de funcionamento do barbeiro.
-        // Aqui só filtra os slots já ocupados (reservados válidos ou confirmados) no dia.
+        // Aqui só filtra os slots já ocupados por agendamentos confirmados no dia.
         const inicioDia = new Date(`${data}T00:00:00`);
         const fimDia = new Date(`${data}T23:59:59`);
         const ocupados = await this.prisma.agendamento.findMany({
             where: {
                 barbeiroId,
                 dataHoraInicio: { gte: inicioDia, lte: fimDia },
-                OR: [
-                    { status: client_1.StatusAgendamento.CONFIRMADO },
-                    { status: client_1.StatusAgendamento.RESERVADO, expiraEm: { gt: new Date() } },
-                ],
+                status: client_1.StatusAgendamento.CONFIRMADO,
             },
             select: { dataHoraInicio: true, dataHoraFim: true },
         });
@@ -94,13 +76,12 @@ let AppointmentsService = class AppointmentsService {
         return this.prisma.agendamento.findMany({
             where: {
                 dataHoraInicio: { gte: inicioDia, lte: fimDia },
-                status: { in: [client_1.StatusAgendamento.CONFIRMADO, client_1.StatusAgendamento.RESERVADO] },
+                status: client_1.StatusAgendamento.CONFIRMADO,
             },
             include: {
                 cliente: { select: { id: true, nome: true, email: true, telefone: true } },
                 barbeiro: true,
                 servico: true,
-                pagamento: true,
             },
             orderBy: { dataHoraInicio: 'asc' },
         });
@@ -108,7 +89,7 @@ let AppointmentsService = class AppointmentsService {
     async meusAgendamentos(clienteId) {
         return this.prisma.agendamento.findMany({
             where: { clienteId },
-            include: { barbeiro: true, servico: true, pagamento: true },
+            include: { barbeiro: true, servico: true },
             orderBy: { dataHoraInicio: 'desc' },
         });
     }
@@ -123,9 +104,74 @@ let AppointmentsService = class AppointmentsService {
             data: { status: client_1.StatusAgendamento.CANCELADO },
         });
     }
+    async estatisticasDashboard(dataInicio, dataFim) {
+        const inicio = new Date(`${dataInicio}T00:00:00`);
+        const fim = new Date(`${dataFim}T23:59:59`);
+        const [agendamentos, barbeiros] = await Promise.all([
+            this.prisma.agendamento.findMany({
+                where: { dataHoraInicio: { gte: inicio, lte: fim } },
+                include: { barbeiro: true, servico: true },
+            }),
+            this.prisma.barbeiro.findMany({ where: { ativo: true } }),
+        ]);
+        const confirmados = agendamentos.filter((a) => a.status === client_1.StatusAgendamento.CONFIRMADO);
+        const cancelados = agendamentos.filter((a) => a.status === client_1.StatusAgendamento.CANCELADO);
+        const totalAgendamentos = agendamentos.length;
+        const taxaCancelamento = totalAgendamentos > 0 ? (cancelados.length / totalAgendamentos) * 100 : 0;
+        const totalDias = Math.floor((fim.getTime() - inicio.getTime()) / 86_400_000) + 1;
+        const slotsTotais = barbeiros.length * totalDias * AppointmentsService_1.SLOTS_POR_DIA;
+        const percentualOcupacao = slotsTotais > 0 ? (confirmados.length / slotsTotais) * 100 : 0;
+        const porBarbeiro = new Map();
+        const porServico = new Map();
+        for (const a of agendamentos) {
+            const b = porBarbeiro.get(a.barbeiroId) ?? {
+                barbeiroId: a.barbeiroId,
+                nome: a.barbeiro.nome,
+                confirmados: 0,
+                cancelados: 0,
+            };
+            const s = porServico.get(a.servicoId) ?? {
+                servicoId: a.servicoId,
+                nome: a.servico.nome,
+                confirmados: 0,
+                cancelados: 0,
+            };
+            if (a.status === client_1.StatusAgendamento.CONFIRMADO) {
+                b.confirmados++;
+                s.confirmados++;
+            }
+            else {
+                b.cancelados++;
+                s.cancelados++;
+            }
+            porBarbeiro.set(a.barbeiroId, b);
+            porServico.set(a.servicoId, s);
+        }
+        return {
+            periodo: { dataInicio, dataFim },
+            totalAgendamentos,
+            confirmados: confirmados.length,
+            cancelados: cancelados.length,
+            taxaCancelamento,
+            ocupacao: {
+                slotsOcupados: confirmados.length,
+                slotsTotais,
+                percentual: percentualOcupacao,
+            },
+            porBarbeiro: [...porBarbeiro.values()].sort((a, b) => b.confirmados - a.confirmados),
+            porServico: [...porServico.values()].sort((a, b) => b.confirmados - a.confirmados),
+        };
+    }
 };
 exports.AppointmentsService = AppointmentsService;
-exports.AppointmentsService = AppointmentsService = __decorate([
+/**
+ * Mesma lista de horários candidatos usada em schedule.tsx (09:00–16:00,
+ * 6 slots/dia). Ainda não há horário de funcionamento configurável por
+ * barbeiro (mesmo TODO de listarHorariosDisponiveis), então a ocupação é
+ * calculada em cima desse número fixo.
+ */
+AppointmentsService.SLOTS_POR_DIA = 6;
+exports.AppointmentsService = AppointmentsService = AppointmentsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], AppointmentsService);

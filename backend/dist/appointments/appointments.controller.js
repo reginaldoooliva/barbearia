@@ -20,6 +20,7 @@ const roles_decorator_1 = require("../auth/roles.decorator");
 const client_1 = require("@prisma/client");
 const appointments_service_1 = require("./appointments.service");
 const create_appointment_dto_1 = require("./dto/create-appointment.dto");
+const dashboard_stats_query_dto_1 = require("./dto/dashboard-stats-query.dto");
 let AppointmentsController = class AppointmentsController {
     constructor(appointmentsService) {
         this.appointmentsService = appointmentsService;
@@ -30,8 +31,11 @@ let AppointmentsController = class AppointmentsController {
     agenda(data) {
         return this.appointmentsService.agendaDoDia(data);
     }
+    stats(query) {
+        return this.appointmentsService.estatisticasDashboard(query.dataInicio, query.dataFim);
+    }
     criar(req, dto) {
-        return this.appointmentsService.criarReserva(req.user.id, dto);
+        return this.appointmentsService.criarAgendamento(req.user.id, dto);
     }
     meus(req) {
         return this.appointmentsService.meusAgendamentos(req.user.id);
@@ -57,6 +61,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AppointmentsController.prototype, "agenda", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(client_1.Role.PROPRIETARIO),
+    (0, common_1.Get)('stats'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [dashboard_stats_query_dto_1.DashboardStatsQueryDto]),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "stats", null);
 __decorate([
     (0, roles_decorator_1.Roles)(client_1.Role.CLIENTE),
     (0, common_1.Post)(),

@@ -1,0 +1,7 @@
+- generic [ref=f2e14]:
+  - generic [ref=f2e15]: 
+  - generic [ref=f2e17]: Área do proprietário
+  - generic [ref=f2e18]: Acompanhe a agenda da sua barbearia
+  - textbox "E-mail" [ref=f2e19]: teste.cliente@example.com
+  - textbox "Senha" [ref=f2e20]: "123456"
+  - generic [ref=f2e21] [cursor=pointer]: Entrar

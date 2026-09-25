@@ -1,0 +1,71 @@
+- generic [ref=f1e83]:
+  - generic [ref=f1e86]:
+    - generic [ref=f1e87]: Escolha data e horário
+    - generic [ref=f1e89]:
+      - generic [ref=f1e90] [cursor=pointer]:
+        - generic [ref=f1e91]: dom
+        - generic [ref=f1e92]: "6"
+      - generic [ref=f1e93] [cursor=pointer]:
+        - generic [ref=f1e94]: seg
+        - generic [ref=f1e95]: "7"
+      - generic [ref=f1e96] [cursor=pointer]:
+        - generic [ref=f1e97]: ter
+        - generic [ref=f1e98]: "8"
+      - generic [ref=f1e99] [cursor=pointer]:
+        - generic [ref=f1e100]: qua
+        - generic [ref=f1e101]: "9"
+      - generic [ref=f1e102] [cursor=pointer]:
+        - generic [ref=f1e103]: qui
+        - generic [ref=f1e104]: "10"
+      - generic [ref=f1e105] [cursor=pointer]:
+        - generic [ref=f1e106]: sex
+        - generic [ref=f1e107]: "11"
+      - generic [ref=f1e108] [cursor=pointer]:
+        - generic [ref=f1e109]: sáb
+        - generic [ref=f1e110]: "12"
+      - generic [ref=f1e111] [cursor=pointer]:
+        - generic [ref=f1e112]: dom
+        - generic [ref=f1e113]: "13"
+      - generic [ref=f1e114] [cursor=pointer]:
+        - generic [ref=f1e115]: seg
+        - generic [ref=f1e116]: "14"
+      - generic [ref=f1e117] [cursor=pointer]:
+        - generic [ref=f1e118]: ter
+        - generic [ref=f1e119]: "15"
+      - generic [ref=f1e120] [cursor=pointer]:
+        - generic [ref=f1e121]: qua
+        - generic [ref=f1e122]: "16"
+      - generic [ref=f1e123] [cursor=pointer]:
+        - generic [ref=f1e124]: qui
+        - generic [ref=f1e125]: "17"
+      - generic [ref=f1e126] [cursor=pointer]:
+        - generic [ref=f1e127]: sex
+        - generic [ref=f1e128]: "18"
+      - generic [ref=f1e129] [cursor=pointer]:
+        - generic [ref=f1e130]: sáb
+        - generic [ref=f1e131]: "19"
+    - generic [ref=f1e132]:
+      - generic:
+        - generic [ref=f1e133]: 
+        - generic [ref=f1e134]: 09:00
+      - generic [ref=f1e135] [cursor=pointer]:
+        - generic [ref=f1e136]: 
+        - generic [ref=f1e137]: 10:00
+      - generic [ref=f1e138] [cursor=pointer]:
+        - generic [ref=f1e139]: 
+        - generic [ref=f1e140]: 11:00
+      - generic [ref=f1e141] [cursor=pointer]:
+        - generic [ref=f1e142]: 
+        - generic [ref=f1e143]: 14:00
+      - generic [ref=f1e144] [cursor=pointer]:
+        - generic [ref=f1e145]: 
+        - generic [ref=f1e146]: 15:00
+      - generic [ref=f1e147] [cursor=pointer]:
+        - generic [ref=f1e148]: 
+        - generic [ref=f1e149]: 16:00
+  - generic [ref=f1e150]:
+    - generic:
+      - generic:
+        - button "Go back" [ref=f1e152] [cursor=pointer]
+        - generic:
+          - heading [level=1]

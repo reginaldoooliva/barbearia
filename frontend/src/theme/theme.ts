@@ -51,13 +51,11 @@ export const radii = {
 } as const;
 
 export const statusColors: Record<string, string> = {
-  RESERVADO: colors.warning,
   CONFIRMADO: colors.success,
   CANCELADO: colors.danger,
 };
 
 export const statusLabels: Record<string, string> = {
-  RESERVADO: 'Reservado',
   CONFIRMADO: 'Confirmado',
   CANCELADO: 'Cancelado',
 };

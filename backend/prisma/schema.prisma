@@ -13,16 +13,8 @@ enum Role {
 }
 
 enum StatusAgendamento {
-  RESERVADO   // travado temporariamente aguardando pagamento
-  CONFIRMADO  // pago
-  CANCELADO   // expirou ou foi cancelado
-}
-
-enum StatusPagamento {
-  PENDENTE
-  APROVADO
-  RECUSADO
-  EXPIRADO
+  CONFIRMADO
+  CANCELADO
 }
 
 model Usuario {
@@ -66,23 +58,8 @@ model Agendamento {
   servicoId      String
   dataHoraInicio DateTime
   dataHoraFim    DateTime
-  status         StatusAgendamento @default(RESERVADO)
-  expiraEm       DateTime          // até quando a reserva vale sem pagamento
+  status         StatusAgendamento @default(CONFIRMADO)
   criadoEm       DateTime          @default(now())
 
-  pagamento Pagamento?
-
   @@unique([barbeiroId, dataHoraInicio], name: "slot_unico")
-}
-
-model Pagamento {
-  id                   String          @id @default(uuid())
-  agendamento          Agendamento     @relation(fields: [agendamentoId], references: [id])
-  agendamentoId        String          @unique
-  valorCentavos        Int
-  status               StatusPagamento @default(PENDENTE)
-  metodo               String?
-  mercadoPagoPaymentId String?
-  criadoEm             DateTime        @default(now())
-  atualizadoEm         DateTime        @updatedAt
 }

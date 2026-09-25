@@ -1,0 +1,8 @@
+- generic [ref=f1e14]:
+  - generic [ref=f1e15]: 
+  - generic [ref=f1e17]: Bem-vindo de volta
+  - generic [ref=f1e18]: Entre para agendar seu próximo horário
+  - textbox "E-mail" [ref=f1e19]
+  - textbox "Senha" [ref=f1e20]
+  - generic [ref=f1e21] [cursor=pointer]: Entrar
+  - generic [ref=f1e23] [cursor=pointer]: Não tem conta? Cadastre-se
